@@ -5,7 +5,7 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue?logo=postgresql)
 ![Docker](https://img.shields.io/badge/Docker-Compose-blue?logo=docker)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
-![CI](https://github.com/YOUR_USERNAME/cyberasset-manager/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/fsouilhi/cyberasset-manager/actions/workflows/ci.yml/badge.svg)
 
 > Plateforme de gestion des actifs informatiques avec module d'analyse de risques **EBIOS Risk Manager** (méthode ANSSI).
 
@@ -101,7 +101,7 @@ Implémentation des **5 ateliers** de la méthode EBIOS RM (ANSSI, 2018) :
 ### Avec Docker (recommandé)
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/cyberasset-manager.git
+git clone https://github.com/fsouilhi/cyberasset-manager.git
 cd cyberasset-manager
 cp .env.example .env
 # Éditer .env avec vos valeurs
