@@ -157,11 +157,9 @@ router.post('/projects/:projectId/scenarios/strategic', async (req, res, next) =
 router.get('/projects/:projectId/scenarios/operational', async (req, res, next) => {
   try {
     const result = await db.query(
-      `SELECT os.*, ss.name AS strategic_scenario_name
-       FROM ebios_operational_scenarios os
-       JOIN ebios_strategic_scenarios ss ON ss.id = os.strategic_scenario_id
-       WHERE os.project_id = $1
-       ORDER BY os.technical_likelihood DESC`,
+      `SELECT * FROM ebios_operational_scenarios
+       WHERE project_id = $1
+       ORDER BY created_at DESC`,
       [req.params.projectId]
     );
     res.json(result.rows);
@@ -169,13 +167,22 @@ router.get('/projects/:projectId/scenarios/operational', async (req, res, next) 
 });
 
 router.post('/projects/:projectId/scenarios/operational', async (req, res, next) => {
-  const { strategic_scenario_id, name, description, attack_technique, mitre_attack_ref, targeted_asset_id, technical_likelihood } = req.body;
+  const { name, description, likelihood, severity } = req.body;
+
+  const computeRiskLevel = (l, s) => {
+    const score = l * s;
+    if (score <= 4) return 'acceptable';
+    if (score <= 9) return 'tolerable';
+    return 'unacceptable';
+  };
+  const risk_level = computeRiskLevel(parseInt(likelihood), parseInt(severity));
+
   try {
     const result = await db.query(
       `INSERT INTO ebios_operational_scenarios
-         (project_id, strategic_scenario_id, name, description, attack_technique, mitre_attack_ref, targeted_asset_id, technical_likelihood)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
-      [req.params.projectId, strategic_scenario_id, name, description, attack_technique, mitre_attack_ref, targeted_asset_id, technical_likelihood]
+         (project_id, name, description, technical_likelihood, risk_level)
+       VALUES ($1,$2,$3,$4,$5) RETURNING *`,
+      [req.params.projectId, name, description, likelihood, risk_level]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) { next(err); }
