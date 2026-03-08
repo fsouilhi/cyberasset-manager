@@ -175,4 +175,4 @@ cd frontend && npm install && npm run dev
 
 ## 📄 Licence
 
-MIT © 2025 — Projet portfolio dans le cadre d'une démarche de formation en cybersécurité.
+MIT © 2026 Fatima Souilhi — Projet portfolio dans le cadre d'une démarche de formation en cybersécurité.
