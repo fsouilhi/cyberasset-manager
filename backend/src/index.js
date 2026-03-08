@@ -1,4 +1,5 @@
 require('dotenv').config();
+const rateLimit = require('express-rate-limit');
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -20,6 +21,20 @@ app.use(morgan('dev'));
 app.use(express.json());
 
 // ── Routes ───────────────────────────────────────────────────────────
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  message: { error: 'Trop de tentatives, réessayez dans 15 minutes.' },
+});
+
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 200,
+  message: { error: 'Trop de requêtes, réessayez dans 15 minutes.' },
+});
+
+app.use('/api/auth', authLimiter);
+app.use('/api', apiLimiter);
 app.use('/api/auth',   authRoutes);
 app.use('/api/assets', assetsRoutes);
 app.use('/api/ebios',  ebiosRoutes);

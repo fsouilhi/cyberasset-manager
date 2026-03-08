@@ -74,7 +74,9 @@ export default function EbiosWorkshop() {
       else if (step === '3') await ebiosService.createStrategicScenario(projectId, {
         ...form, likelihood: parseInt(form.likelihood), severity: parseInt(form.severity),
       });
-      else if (step === '4') await ebiosService.createOperationalScenario(projectId, form);
+      else if (step === '4') await ebiosService.createOperationalScenario(projectId, {
+        ...form, likelihood: parseInt(form.likelihood), severity: parseInt(form.severity),
+      });
       else if (step === '5') await ebiosService.createMeasure(projectId, form);
       setShowForm(false);
       setForm({});
@@ -172,6 +174,35 @@ export default function EbiosWorkshop() {
       </div>
     );
 
+    if (step === '4') return (
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+        <div>
+          <label style={{ display: 'block', fontSize: '13px', color: '#475569', marginBottom: '4px' }}>Nom</label>
+          <input value={form.name || ''} onChange={e => setForm({ ...form, name: e.target.value })} required
+            style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '14px', boxSizing: 'border-box' }} />
+        </div>
+        <div>
+          <label style={{ display: 'block', fontSize: '13px', color: '#475569', marginBottom: '4px' }}>Description technique</label>
+          <input value={form.description || ''} onChange={e => setForm({ ...form, description: e.target.value })}
+            style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '14px', boxSizing: 'border-box' }} />
+        </div>
+        <div>
+          <label style={{ display: 'block', fontSize: '13px', color: '#475569', marginBottom: '4px' }}>Vraisemblance (1-4)</label>
+          <select value={form.likelihood || 2} onChange={e => setForm({ ...form, likelihood: parseInt(e.target.value) })}
+            style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '14px' }}>
+            {[1, 2, 3, 4].map(n => <option key={n} value={n}>{n}</option>)}
+          </select>
+        </div>
+        <div>
+          <label style={{ display: 'block', fontSize: '13px', color: '#475569', marginBottom: '4px' }}>Gravite (1-4)</label>
+          <select value={form.severity || 2} onChange={e => setForm({ ...form, severity: parseInt(e.target.value) })}
+            style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '14px' }}>
+            {[1, 2, 3, 4].map(n => <option key={n} value={n}>{n}</option>)}
+          </select>
+        </div>
+      </div>
+    );
+
     if (step === '5') return (
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
         <div>
@@ -238,10 +269,7 @@ export default function EbiosWorkshop() {
             <p style={{ margin: '0 0 4px', fontWeight: '600', color: '#1e293b', fontSize: '14px' }}>{item.name}</p>
             <p style={{ margin: 0, color: '#64748b', fontSize: '13px' }}>{item.category}</p>
           </div>
-          <span style={{
-            background: '#f1f5f9', color: '#475569',
-            padding: '4px 10px', borderRadius: '4px', fontSize: '12px',
-          }}>
+          <span style={{ background: '#f1f5f9', color: '#475569', padding: '4px 10px', borderRadius: '4px', fontSize: '12px' }}>
             Pertinence : {item.pertinence}/4
           </span>
         </div>
@@ -252,9 +280,29 @@ export default function EbiosWorkshop() {
       <div key={item.id} style={{ padding: '16px', borderBottom: '1px solid #f1f5f9' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <p style={{ margin: '0 0 4px', fontWeight: '600', color: '#1e293b', fontSize: '14px' }}>{item.scenario_name}</p>
+            <p style={{ margin: '0 0 4px', fontWeight: '600', color: '#1e293b', fontSize: '14px' }}>{item.scenario_name || item.name}</p>
             <p style={{ margin: 0, color: '#64748b', fontSize: '13px' }}>
               Source : {item.risk_source_name} — Vraisemblance : {item.likelihood}/4 — Gravite : {item.severity}/4
+            </p>
+          </div>
+          <span style={{
+            background: RISK_COLORS[item.risk_level] + '20',
+            color: RISK_COLORS[item.risk_level],
+            padding: '4px 12px', borderRadius: '12px', fontSize: '12px', fontWeight: '600',
+          }}>
+            {item.risk_level}
+          </span>
+        </div>
+      </div>
+    );
+
+    if (step === '4') return (
+      <div key={item.id} style={{ padding: '16px', borderBottom: '1px solid #f1f5f9' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <p style={{ margin: '0 0 4px', fontWeight: '600', color: '#1e293b', fontSize: '14px' }}>{item.name}</p>
+            <p style={{ margin: 0, color: '#64748b', fontSize: '13px' }}>
+              Vraisemblance : {item.likelihood}/4 — Gravite : {item.severity}/4
             </p>
           </div>
           <span style={{
@@ -319,17 +367,15 @@ export default function EbiosWorkshop() {
           <h2 style={{ color: '#1e293b', margin: 0 }}>{currentWorkshop?.label}</h2>
           <p style={{ color: '#64748b', fontSize: '14px', margin: '4px 0 0' }}>{currentWorkshop?.title}</p>
         </div>
-        {step !== '4' && (
-          <button
-            onClick={() => setShowForm(true)}
-            style={{
-              background: '#2563eb', color: '#fff', border: 'none',
-              padding: '10px 20px', borderRadius: '6px', cursor: 'pointer', fontSize: '14px',
-            }}
-          >
-            + Ajouter
-          </button>
-        )}
+        <button
+          onClick={() => setShowForm(true)}
+          style={{
+            background: '#2563eb', color: '#fff', border: 'none',
+            padding: '10px 20px', borderRadius: '6px', cursor: 'pointer', fontSize: '14px',
+          }}
+        >
+          + Ajouter
+        </button>
       </div>
 
       {showForm && (
