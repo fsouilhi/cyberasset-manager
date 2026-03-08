@@ -22,7 +22,7 @@ export default function Dashboard() {
   useEffect(() => {
     Promise.all([assetService.getAll(), ebiosService.getProjects()])
       .then(([a, p]) => {
-        setAssets(a.data);
+        setAssets(a.data.data || a.data);
         setProjects(p.data);
       })
       .finally(() => setLoading(false));
