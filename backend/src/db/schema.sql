@@ -149,11 +149,13 @@ CREATE TABLE ebios_operational_scenarios (
   strategic_scenario_id   UUID REFERENCES ebios_strategic_scenarios(id),
   name                    VARCHAR(255) NOT NULL,
   description             TEXT,
-  attack_technique        VARCHAR(255),   -- ex: Phishing, SQLi, RCE...
-  mitre_attack_ref        VARCHAR(50),    -- ex: T1566 (MITRE ATT&CK)
+  attack_technique        VARCHAR(255),
+  mitre_attack_ref        VARCHAR(50),
   targeted_asset_id       UUID REFERENCES ebios_supporting_assets(id),
-  -- Cotation technique (difficulté pour l'attaquant)
   technical_likelihood    SMALLINT CHECK (technical_likelihood BETWEEN 1 AND 4),
+  likelihood              SMALLINT CHECK (likelihood BETWEEN 1 AND 4),
+  severity                SMALLINT CHECK (severity BETWEEN 1 AND 4),
+  risk_level              VARCHAR(20) CHECK (risk_level IN ('acceptable', 'tolerable', 'unacceptable')),
   created_at              TIMESTAMP DEFAULT NOW()
 );
 
