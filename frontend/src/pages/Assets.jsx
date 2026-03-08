@@ -33,8 +33,7 @@ export default function Assets() {
 
   const load = () => {
     assetService.getAll(filter)
-      .then(r => setAssets(r.data))
-      .finally(() => setLoading(false));
+  .then(r => setAssets(r.data.data || r.data))      .finally(() => setLoading(false));
   };
 
   useEffect(() => { load(); }, [filter]);

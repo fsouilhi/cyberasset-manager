@@ -23,16 +23,34 @@ const assetSchema = Joi.object({
 
 router.get('/', async (req, res, next) => {
   try {
-    const { type, criticality, status, search } = req.query;
+    const { type, criticality, status, search, page = 1, limit = 20 } = req.query;
+    const offset = (parseInt(page) - 1) * parseInt(limit);
+
     let query = 'SELECT * FROM assets WHERE 1=1';
+    let countQuery = 'SELECT COUNT(*) FROM assets WHERE 1=1';
     const params = [];
-    if (type) { params.push(type); query += ` AND type = $${params.length}`; }
-    if (criticality) { params.push(criticality); query += ` AND criticality = $${params.length}`; }
-    if (status) { params.push(status); query += ` AND status = $${params.length}`; }
-    if (search) { params.push(`%${search}%`); query += ` AND (name ILIKE $${params.length} OR hostname ILIKE $${params.length})`; }
-    query += ' ORDER BY criticality DESC, created_at DESC';
-    const result = await db.query(query, params);
-    res.json(result.rows);
+
+    if (type) { params.push(type); query += ` AND type = $${params.length}`; countQuery += ` AND type = $${params.length}`; }
+    if (criticality) { params.push(criticality); query += ` AND criticality = $${params.length}`; countQuery += ` AND criticality = $${params.length}`; }
+    if (status) { params.push(status); query += ` AND status = $${params.length}`; countQuery += ` AND status = $${params.length}`; }
+    if (search) { params.push(`%${search}%`); query += ` AND (name ILIKE $${params.length} OR hostname ILIKE $${params.length})`; countQuery += ` AND (name ILIKE $${params.length} OR hostname ILIKE $${params.length})`; }
+
+    query += ` ORDER BY criticality DESC, created_at DESC LIMIT ${parseInt(limit)} OFFSET ${offset}`;
+
+    const [result, countResult] = await Promise.all([
+      db.query(query, params),
+      db.query(countQuery, params),
+    ]);
+
+    res.json({
+      data: result.rows,
+      pagination: {
+        total: parseInt(countResult.rows[0].count),
+        page: parseInt(page),
+        limit: parseInt(limit),
+        pages: Math.ceil(countResult.rows[0].count / parseInt(limit)),
+      },
+    });
   } catch (err) { next(err); }
 });
 
