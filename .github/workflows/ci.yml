@@ -1,16 +1,13 @@
 name: CI
-
 on:
   push:
     branches: [main, develop]
   pull_request:
     branches: [main]
-
 jobs:
   backend-test:
     name: Backend — Tests & Lint
     runs-on: ubuntu-latest
-
     services:
       postgres:
         image: postgres:15
@@ -25,21 +22,21 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
-
     steps:
       - uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
           cache-dependency-path: backend/package-lock.json
-
       - name: Install backend dependencies
         working-directory: ./backend
         run: npm ci
-
+      - name: Initialize database schema
+        env:
+          PGPASSWORD: test_password
+        run: psql -h localhost -U test_user -d cyberasset_test -f backend/src/db/schema.sql
       - name: Run backend tests
         working-directory: ./backend
         env:
@@ -48,38 +45,30 @@ jobs:
           JWT_REFRESH_SECRET: test_refresh_secret_for_ci_only
           NODE_ENV: test
         run: npm test
-
   frontend-build:
     name: Frontend — Build
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
-
       - name: Install frontend dependencies
         working-directory: ./frontend
         run: npm ci
-
       - name: Build frontend
         working-directory: ./frontend
         env:
           VITE_API_URL: https://api.cyberasset-demo.onrender.com/api
         run: npm run build
-
   docker-build:
     name: Docker — Build check
     runs-on: ubuntu-latest
     needs: [backend-test, frontend-build]
-
     steps:
       - uses: actions/checkout@v4
-
       - name: Build Docker images
         run: docker-compose build
