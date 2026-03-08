@@ -180,9 +180,9 @@ router.post('/projects/:projectId/scenarios/operational', async (req, res, next)
   try {
     const result = await db.query(
       `INSERT INTO ebios_operational_scenarios
-         (project_id, name, description, technical_likelihood, risk_level)
-       VALUES ($1,$2,$3,$4,$5) RETURNING *`,
-      [req.params.projectId, name, description, likelihood, risk_level]
+         (project_id, name, description, likelihood, severity, risk_level)
+       VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
+      [req.params.projectId, name, description, likelihood, severity, risk_level]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) { next(err); }
