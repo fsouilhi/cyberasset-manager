@@ -45,12 +45,8 @@ app.get('/health', (req, res) => {
 });
 
 // ── Gestion des erreurs ───────────────────────────────────────────────
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(err.status || 500).json({
-    error: err.message || 'Internal Server Error',
-  });
-});
+const errorHandler = require('./middleware/error.middleware');
+app.use(errorHandler);
 
 if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => {
