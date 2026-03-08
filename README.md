@@ -9,6 +9,14 @@
 
 > Plateforme de gestion des actifs informatiques avec module d'analyse de risques **EBIOS Risk Manager** (méthode ANSSI).
 
+## 🌍 Demo en ligne
+
+- **Application** : https://cyberasset-manager.vercel.app
+- **API** : https://cyberasset-backend.onrender.com
+- Compte de démonstration : `fatima@test.com` / `password123`
+
+> Note : le backend est hébergé sur un plan gratuit (Render Free). La première requête peut prendre 30-50 secondes si le service est en veille.
+
 ---
 
 ## 📋 Description

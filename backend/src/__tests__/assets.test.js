@@ -27,7 +27,7 @@ describe('Assets Routes', () => {
       .get('/api/assets')
       .set('Authorization', `Bearer ${accessToken}`);
     expect(res.statusCode).toBe(200);
-    expect(Array.isArray(res.body)).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
   });
 
   it('POST /api/assets — cree un actif', async () => {

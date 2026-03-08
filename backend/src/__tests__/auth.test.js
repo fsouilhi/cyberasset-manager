@@ -24,14 +24,14 @@ describe(' Auth Routes', () => {
   it('POST /api/auth/register — email déjà utilisé = 409', async () => {
     const res = await request(app)
       .post('/api/auth/register')
-      .send({ email: testEmail, password: 'password123' });
+      .send({ email: testEmail, password: 'password123', first_name: 'Test', last_name: 'User' });
     expect(res.statusCode).toBe(409);
   });
 
   it('POST /api/auth/register — email invalide = 400', async () => {
     const res = await request(app)
       .post('/api/auth/register')
-      .send({ email: 'pasunemail', password: 'password123' });
+      .send({ email: 'pasunemail', password: 'password123', first_name: 'Test', last_name: 'User' });
     expect(res.statusCode).toBe(400);
   });
 
